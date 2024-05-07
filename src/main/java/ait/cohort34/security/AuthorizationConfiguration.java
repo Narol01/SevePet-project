@@ -61,7 +61,7 @@ public class AuthorizationConfiguration {
 // удалить юзера м. только он сам или админ
                         .access(new WebExpressionAuthorizationManager("#login == authentication.name or hasRole('ADMINISTRATOR')"))
 
-                .requestMatchers(HttpMethod.POST, "/pet/add/{author}")
+                .requestMatchers(HttpMethod.POST, "/pet/{author}")
                         .access(new WebExpressionAuthorizationManager("#author == authentication.name "))
 
                 .requestMatchers(HttpMethod.PUT,"/pet/update/{caption}")

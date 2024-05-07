@@ -15,9 +15,9 @@ public class PetController{
     @Autowired
     final PetService petService;
 
-    @PostMapping
-    public PetDto addNewPet(@RequestBody NewPetDto newPetDto) {//сделать запрос по токену
-        return petService.addNewPet(newPetDto);
+    @PostMapping("/{author}")
+    public PetDto addNewPet(@PathVariable String author,@RequestBody NewPetDto newPetDto) {//сделать запрос по токену
+        return petService.addNewPet(author,newPetDto);
         // в дальнейшем при создании поста будет передаваться принципал логин что упростит отправку запроса
     }
     @GetMapping("/found/caption/{caption}")

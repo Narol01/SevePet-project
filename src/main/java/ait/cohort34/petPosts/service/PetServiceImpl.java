@@ -20,9 +20,9 @@ public class PetServiceImpl implements PetService {
 
 
     @Override
-    public PetDto addNewPet(NewPetDto NewPetDto) {
+    public PetDto addNewPet(String author , NewPetDto NewPetDto) {
         Pet pet = modelMapper.map(NewPetDto, Pet.class);
-        pet.setAuthor("Author");
+        pet.setAuthor(author);
         petRepository.save(pet);
         return modelMapper.map(pet, PetDto.class);
     }
