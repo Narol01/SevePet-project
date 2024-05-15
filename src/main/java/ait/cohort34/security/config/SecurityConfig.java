@@ -53,11 +53,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/api/account","/api/pet/found/**").permitAll()
                         .requestMatchers(AUTH_WHITELIST).permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/auth/login","/api/auth/refresh","/api/account").permitAll()
-                        .requestMatchers(HttpMethod.PUT,"/api/pet/update/{id}","/api/account/user/{login}").access(new WebExpressionAuthorizationManager("#login == authentication.name or hasRole('ADMIN')"))
-                        .requestMatchers(HttpMethod.PUT,"/api/account/user/{login}/role").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,"/api/pet/update/{id}","/api/account/user/{id}").access(new WebExpressionAuthorizationManager("#login == authentication.name or hasRole('ADMIN')"))
+                        .requestMatchers(HttpMethod.PUT,"/api/account/user/{id}/role").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET,"/api/account/users").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE,"/api/account/user/{login}").access(new WebExpressionAuthorizationManager(("#login == authentication.name or hasRole('ADMIN')")))
-                        .requestMatchers(HttpMethod.DELETE,"/api/pet/{id}","/api/account/user/{login}")
+                        .requestMatchers(HttpMethod.DELETE,"/api/account/user/{id}").access(new WebExpressionAuthorizationManager(("#login == authentication.name or hasRole('ADMIN')")))
+                        .requestMatchers(HttpMethod.DELETE,"/api/pet/{id}")
                         .access((authentication, context) -> {
                                     boolean checkAuthor = webSecurity.checkPostAuthor(Long.valueOf(context.getVariables().get("id")),authentication.get().getName());
                                     boolean checkAdministrator = context.getRequest().isUserInRole("ADMIN");
