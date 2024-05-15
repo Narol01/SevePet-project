@@ -20,7 +20,7 @@ public class PetController{
 
     @PostMapping
     public PetDto addNewPet(@RequestBody NewPetDto newPetDto) {//сделать запрос по токену
-        System.out.println((String)authService.getAuthInfo().getPrincipal());
+        System.out.println(authService.getAuthInfo().getCredentials());
         return petService.addNewPet((String)authService.getAuthInfo().getPrincipal(),newPetDto);
         // в дальнейшем при создании поста будет передаваться принципал логин что упростит отправку запроса
     }

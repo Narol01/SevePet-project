@@ -35,7 +35,7 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
     @Override
     @Transactional
     public UserDto register(UserRegisterDto userRegisterDto) {
-        if (userAccountRepository.existsById(userRegisterDto.getLogin())) {
+        if (userAccountRepository.existsByLogin(userRegisterDto.getLogin())) {
             throw new UserExistsException("A user with this login already exists.");
         }
         UserAccount userAccount = modelMapper.map(userRegisterDto, UserAccount.class);
@@ -61,20 +61,20 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
 
     @Override
     public UserDto getUser(String login) {
-        UserAccount userAccount = userAccountRepository.findById(login).orElseThrow(UserNotFoundException::new);
+        UserAccount userAccount = userAccountRepository.findByLogin(login).orElseThrow(UserNotFoundException::new);
         return modelMapper.map(userAccount, UserDto.class);
     }
     @Transactional
     @Override
-    public UserDto removeUser(String login) {
-        UserAccount userAccount = userAccountRepository.findById(login).orElseThrow(UserNotFoundException::new);
+    public UserDto removeUser(Long id) {
+        UserAccount userAccount = userAccountRepository.findById(id).orElseThrow(UserNotFoundException::new);
         userAccountRepository.delete(userAccount);
         return modelMapper.map(userAccount, UserDto.class);
     }
     @Transactional
     @Override
-    public UserDto updateUser(String login, UserEditDto userEditDto) {
-        UserAccount userAccount = userAccountRepository.findById(login).orElseThrow(UserNotFoundException::new);
+    public UserDto updateUser(Long id, UserEditDto userEditDto) {
+        UserAccount userAccount = userAccountRepository.findById(id).orElseThrow(UserNotFoundException::new);
         if (userEditDto.getFullName() != null) {
             userAccount.setFullName(userEditDto.getFullName());
         }
@@ -98,8 +98,8 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
     }
     @Transactional
     @Override
-    public boolean changeRole(String login) {
-        UserAccount userAccount = userAccountRepository.findById(login).orElseThrow(UserNotFoundException::new);
+    public boolean changeRole(Long id) {
+        UserAccount userAccount = userAccountRepository.findById(id).orElseThrow(UserNotFoundException::new);
         List<Role> roles = entityManager.createQuery("SELECT r FROM Role r WHERE r.title = :title", Role.class)
                 .setParameter("title", "ROLE_ADMIN")
                 .getResultList();
@@ -114,21 +114,21 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
 
     @Override
     public void changePassword(String login, String newPassword) {
-        UserAccount userAccount = userAccountRepository.findById(login).orElseThrow(UserNotFoundException::new);
+        UserAccount userAccount = userAccountRepository.findByLogin(login).orElseThrow(UserNotFoundException::new);
         String password = passwordEncoder.encode(newPassword);
         userAccount.setPassword(password);
         userAccountRepository.save(userAccount);
     }
 
     @Override
-    public String getTelegram(String login) {
-        UserAccount userAccount = userAccountRepository.findById(login).orElseThrow(UserNotFoundException::new);
+    public String getTelegram(Long id) {
+        UserAccount userAccount = userAccountRepository.findById(id).orElseThrow(UserNotFoundException::new);
         return userAccount.getTelegram();
     }
 
     @Override
     public void run(String... args) throws Exception {
-        if (!userAccountRepository.existsById("admin")) {
+        if (!userAccountRepository.existsByLogin("admin")) {
             String password = passwordEncoder.encode("admin");
             UserAccount userAccount = new UserAccount("admin", "", password, "","","","","");
             Role userRole = roleRepository.findByTitle("ADMIN");

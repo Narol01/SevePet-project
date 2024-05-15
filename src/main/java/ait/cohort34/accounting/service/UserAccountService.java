@@ -11,13 +11,13 @@ public interface UserAccountService {
 
     UserDto getUser(String login);
 
-    UserDto removeUser(String login);
+    UserDto removeUser(Long id);
 
-    UserDto updateUser(String login, UserEditDto userEditDto);
+    UserDto updateUser(Long id, UserEditDto userEditDto);
 
-    boolean changeRole(String login);
+    boolean changeRole(Long id);
 
     void changePassword(String login, String newPassword);
 
-    String getTelegram(String login);
+    String getTelegram(Long id);
 }

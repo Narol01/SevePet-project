@@ -19,6 +19,8 @@ import java.util.Set;
 @Table(name = "users")
 public class UserAccount implements UserDetails {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
     private String login;
     private String avatar;
     private String password;
