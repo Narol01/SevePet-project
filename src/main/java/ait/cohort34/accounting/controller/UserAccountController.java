@@ -2,6 +2,7 @@ package ait.cohort34.accounting.controller;
 
 import ait.cohort34.accounting.dto.*;
 import ait.cohort34.accounting.service.UserAccountService;
+import ait.cohort34.security.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserAccountController {
     final UserAccountService userAccountService;
+    final AuthService authService;
 
     @PostMapping
     public UserDto register(@RequestBody UserRegisterDto userRegisterDto) {
@@ -25,9 +27,9 @@ public class UserAccountController {
         return userAccountService.getUsers();
     }
 
-    @GetMapping("/user/{login}")
-    public UserDto getUser(@PathVariable String login) {
-        return userAccountService.getUser(login);
+    @GetMapping
+    public UserDto getUser() {
+        return userAccountService.getUser((String)authService.getAuthInfo().getPrincipal());
     }
 
     @DeleteMapping("/user/{login}")

@@ -20,10 +20,11 @@ public class PetController{
 
     @PostMapping
     public PetDto addNewPet(@RequestBody NewPetDto newPetDto) {//сделать запрос по токену
+        System.out.println((String)authService.getAuthInfo().getPrincipal());
         return petService.addNewPet((String)authService.getAuthInfo().getPrincipal(),newPetDto);
         // в дальнейшем при создании поста будет передаваться принципал логин что упростит отправку запроса
     }
-    @GetMapping("/found/id/{id}")
+    @GetMapping("/{id}")
     public PetDto findPetById(@PathVariable Long id) {
         return petService.findPetById(id);
     }
@@ -40,7 +41,7 @@ public class PetController{
     {
         return petService.findPetsByFilter(petType, age,  gender, country, category,  disability, author);
     }
-    @GetMapping("/found/type/{type}")
+    @GetMapping("/found/{type}")
     public Iterable<PetDto> findPetByType(@PathVariable String type) {
         return petService.findPetByType(type);
     }
@@ -48,7 +49,7 @@ public class PetController{
     public Iterable<PetDto> findAll() {
         return petService.findAllPets();
     }
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public PetDto updatePet(@PathVariable Long  id,@RequestBody UpdatePetDto updatePetDto) {
         return petService.updatePet(id,updatePetDto);
     }

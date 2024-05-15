@@ -11,7 +11,6 @@ import java.util.Set;
 @AllArgsConstructor
 public class NewPetDto {
     String caption;
-    String author;
     String petType;
     String category;
     String gender;

@@ -1,6 +1,9 @@
 package ait.cohort34.accounting.dto;
 
+import ait.cohort34.accounting.model.Role;
 import lombok.*;
+
+import java.util.Set;
 
 @Getter
 @AllArgsConstructor
@@ -14,5 +17,5 @@ public class UserDto {
     private String website;
     private String phone;
     private String telegram;
-    private String role;
+    private Set<Role> role;
 }
