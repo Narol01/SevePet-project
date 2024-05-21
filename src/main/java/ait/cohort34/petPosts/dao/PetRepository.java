@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 @Repository
 public interface PetRepository extends JpaRepository<Pet,Long > {
     Stream<Pet> findByPetTypeIgnoreCase(String type);
+    Stream<Pet> findByAuthorIgnoreCase(String author);
     @Query("select distinct p from Pet p where (:petType is null or p.petType =:petType)" +
             "and (:age is null or p.age=:age)" + "and (:gender is null or p.gender=:gender)" +
             "and (:country is null or p.country=:country)"+ "and (:category is null or p.category=:category)" +

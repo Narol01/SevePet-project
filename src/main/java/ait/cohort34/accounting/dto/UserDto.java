@@ -11,6 +11,7 @@ import java.util.Set;
 @Builder
 public class UserDto {
     private String fullName;
+    @Setter
     private String avatar;
     private String login;
     private String email;
