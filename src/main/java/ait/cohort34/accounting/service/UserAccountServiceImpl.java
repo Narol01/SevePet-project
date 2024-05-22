@@ -7,11 +7,14 @@ import ait.cohort34.accounting.dto.exceptions.UserExistsException;
 import ait.cohort34.accounting.dto.exceptions.UserNotFoundException;
 import ait.cohort34.accounting.model.Role;
 import ait.cohort34.accounting.model.UserAccount;
+import ait.cohort34.petPosts.dao.PetRepository;
+import ait.cohort34.petPosts.model.Pet;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +29,7 @@ import java.util.List;
 public class UserAccountServiceImpl implements UserAccountService, CommandLineRunner {
 
     final UserAccountRepository userAccountRepository;
+    final PetRepository petRepository;
     final ModelMapper modelMapper;
     final PasswordEncoder passwordEncoder;
     @Autowired
@@ -69,6 +73,8 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
     public UserDto removeUser(Long id) {
         UserAccount userAccount = userAccountRepository.findById(id).orElseThrow(UserNotFoundException::new);
         userAccountRepository.delete(userAccount);
+        List<Pet> petList = petRepository.findPetsByAuthorIgnoreCase(userAccount.getUsername()).toList();
+        petRepository.deleteAll(petList);
         return modelMapper.map(userAccount, UserDto.class);
     }
     @Transactional
@@ -113,12 +119,20 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
     }
 
     @Override
-    public void changePassword(String login, String newPassword) {
-        UserAccount userAccount = userAccountRepository.findByLogin(login).orElseThrow(UserNotFoundException::new);
-        String password = passwordEncoder.encode(newPassword);
-        userAccount.setPassword(password);
-        userAccountRepository.save(userAccount);
+    public void changePassword(String login, NewPasswordDto passwordDto) {
+        // Найдем пользователя по login
+        UserAccount user = userAccountRepository.findByLogin(login)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        // Проверим, что старый пароль совпадает с текущим паролем пользователя
+        if (!passwordEncoder.matches(passwordDto.getOldPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Old password is incorrect");
+        }
+        // Обновим пароль пользователя на новый
+        user.setPassword(passwordEncoder.encode(passwordDto.getNewPassword()));
+        //сохраним обновленного пользователя
+        userAccountRepository.save(user);
     }
+
 
     @Override
     public String getTelegram(Long id) {

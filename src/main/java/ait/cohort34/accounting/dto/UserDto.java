@@ -10,6 +10,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 public class UserDto {
+    private Long id;
     private String fullName;
     private String avatar;
     private String login;

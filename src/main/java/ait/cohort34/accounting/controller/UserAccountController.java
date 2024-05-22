@@ -1,10 +1,13 @@
 package ait.cohort34.accounting.controller;
 
 import ait.cohort34.accounting.dto.*;
+import ait.cohort34.accounting.model.UserAccount;
 import ait.cohort34.accounting.service.UserAccountService;
 import ait.cohort34.security.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -49,10 +52,17 @@ public class UserAccountController {
     }
 
     @PutMapping("/password")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changePassword(Principal principal, @RequestHeader("X-Password") String newPassword) {
-        userAccountService.changePassword(principal.getName(), newPassword);
+    @ResponseStatus(HttpStatus.NO_CONTENT) // Аннотация для установки статуса ответа 204
+    public void changePassword(@RequestBody NewPasswordDto passwordDto) {
+//  Получаем текущего аутентифицированного пользователя
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        UserAccount userAccount = (UserAccount) authentication.getPrincipal();
+//        Long userId = userAccount.getId();
+        String login = (String)authService.getAuthInfo().getPrincipal();
+        // Вызываем сервис для изменения пароля
+        userAccountService.changePassword(login, passwordDto);
     }
+
     @GetMapping("/user/{id}/telegram")
     public String getTelegram(@PathVariable Long id){
         return userAccountService.getTelegram(id);
