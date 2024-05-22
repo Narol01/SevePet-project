@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 
         final PetRepository petRepository;
 
-        public boolean checkPostAuthor(Long  postId, String userName){
-            Pet pet = petRepository.findById(postId).orElse(null);//нет смысла бросать здесь ошибку - она будет 500-ой
+        public boolean checkPetAuthor(Long  petId, String userName){
+            Pet pet = petRepository.findById(petId).orElse(null);//нет смысла бросать здесь ошибку - она будет 500-ой
             return pet !=null && pet.getAuthor().equals(userName);
         }
     }
