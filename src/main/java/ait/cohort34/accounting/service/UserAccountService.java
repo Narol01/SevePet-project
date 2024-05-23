@@ -17,7 +17,7 @@ public interface UserAccountService {
 
     boolean changeRole(Long id);
 
-    void changePassword(String login, String newPassword);
+    void changePassword(String login, NewPasswordDto passwordDto);
 
     String getTelegram(Long id);
 }

@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -127,11 +128,18 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
     }
 
     @Override
-    public void changePassword(String login, String newPassword) {
-        UserAccount userAccount = userAccountRepository.findByLogin(login).orElseThrow(UserNotFoundException::new);
-        String password = passwordEncoder.encode(newPassword);
-        userAccount.setPassword(password);
-        userAccountRepository.save(userAccount);
+    public void changePassword(String login, NewPasswordDto passwordDto) {
+        // Найдем пользователя по login
+        UserAccount user = userAccountRepository.findByLogin(login)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        // Проверим, что старый пароль совпадает с текущим паролем пользователя
+        if (!passwordEncoder.matches(passwordDto.getOldPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Old password is incorrect");
+        }
+        // Обновим пароль пользователя на новый
+        user.setPassword(passwordEncoder.encode(passwordDto.getNewPassword()));
+        //сохраним обновленного пользователя
+        userAccountRepository.save(user);
     }
 
     @Override

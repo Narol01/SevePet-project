@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -29,8 +28,7 @@ public class UserAccountController {
 
     @GetMapping
     public UserDto getUser() {
-        return userAccountService.getUser((String)authService.getAuthInfo().getPrincipal());
-
+        return userAccountService.getUser((String) authService.getAuthInfo().getPrincipal());
     }
 
     @DeleteMapping("/user/{id}")
@@ -49,12 +47,15 @@ public class UserAccountController {
     }
 
     @PutMapping("/password")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changePassword(Principal principal, @RequestHeader("X-Password") String newPassword) {
-        userAccountService.changePassword(principal.getName(), newPassword);
+    @ResponseStatus(HttpStatus.NO_CONTENT) // Аннотация для установки статуса ответа 204
+    public void changePassword(@RequestBody NewPasswordDto passwordDto) {
+        String login = (String)authService.getAuthInfo().getPrincipal();
+        // Вызываем сервис для изменения пароля
+        userAccountService.changePassword(login, passwordDto);
     }
+
     @GetMapping("/user/{id}/telegram")
-    public String getTelegram(@PathVariable Long id){
+    public String getTelegram(@PathVariable Long id) {
         return userAccountService.getTelegram(id);
     }
 }
