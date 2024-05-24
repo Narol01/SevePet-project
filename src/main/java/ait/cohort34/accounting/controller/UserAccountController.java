@@ -30,6 +30,10 @@ public class UserAccountController {
     public UserDto getUser() {
         return userAccountService.getUser((String) authService.getAuthInfo().getPrincipal());
     }
+    @GetMapping("/{author}")
+    public UserDto getUser(@PathVariable String author) {
+        return userAccountService.getUser(author);
+    }
 
     @DeleteMapping("/user/{id}")
     public UserDto removeUser(@PathVariable Long id) {

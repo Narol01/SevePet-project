@@ -1,9 +1,7 @@
 package ait.cohort34.petPosts.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import ait.cohort34.petPosts.model.Photo;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -11,6 +9,7 @@ import java.util.Set;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
 public class PetDto {
     Long  id;
     String caption;
@@ -18,10 +17,10 @@ public class PetDto {
     String category;
     String gender;
     String age;
-    Set<String> photo;
+    Set<String> photos;
     String country;
     String city;
     String description;
     LocalDate dateCreate;
-    LocalDate dateDeadline;
+    LocalDate deadline;
 }

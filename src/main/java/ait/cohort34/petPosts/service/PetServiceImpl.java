@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Base64;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,11 +27,13 @@ public class PetServiceImpl implements PetService {
 
     @Override
     public PetDto addNewPet(String login,NewPetDto newPetDto) {
-        Set<Photo> photos = newPetDto.getPhoto().stream()
+        Set<Photo> photos = newPetDto.getPhotos().stream()
                 .map(Base64.getDecoder()::decode)
                 .map(Photo::new)
                 .collect(Collectors.toSet());
-
+        for(Photo photo:photos){
+            System.out.println(photo);
+        }
         // Create the Pet entity
         Pet pet = new Pet(newPetDto.getCaption(),
                 newPetDto.getPetType(),
@@ -63,6 +66,15 @@ public class PetServiceImpl implements PetService {
     @Override
     public PetDto findPetById(Long id) {
         Pet pet= petRepository.findById(id).orElseThrow(PetNotFoundException::new);
+
+        PetDto petDto = modelMapper.map(pet, PetDto.class);
+
+        if (pet.getPhotos() != null) {
+            Set<String> photoList = pet.getPhotos().stream()
+                    .map(photo -> Base64.getEncoder().encodeToString(photo.getData()))
+                    .collect(Collectors.toSet());
+            petDto.setPhotos(photoList);
+        }
         return modelMapper.map(pet, PetDto.class);
     }
 
@@ -82,7 +94,7 @@ public class PetServiceImpl implements PetService {
         pet.setCountry(updatePetDto.getCountry());
         pet.setCity(updatePetDto.getCity());
         pet.setDescription(updatePetDto.getDescription());
-        Set<Photo> photos = updatePetDto.getPhoto().stream()
+        Set<Photo> photos = updatePetDto.getPhotos().stream()
                 .map(Base64.getDecoder()::decode)
                 .map(Photo::new)
                 .collect(Collectors.toSet());

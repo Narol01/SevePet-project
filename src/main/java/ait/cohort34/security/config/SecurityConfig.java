@@ -50,14 +50,14 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(x->x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(x->x
-                        .requestMatchers(HttpMethod.GET,"/api/account","/api/pet/found/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/account","/api/pet/found/**","api/pet/{id}").permitAll()
                         .requestMatchers(AUTH_WHITELIST).permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/auth/login","/api/auth/refresh","/api/account").permitAll()
-                        .requestMatchers(HttpMethod.PUT,"/api/pet/update/{id}","/api/account/user/{id}").access(new WebExpressionAuthorizationManager("#login == authentication.name or hasRole('ADMIN')"))
+                        .requestMatchers(HttpMethod.PUT,"/api/pet/{id}","/api/account/user/{id}").access(new WebExpressionAuthorizationManager("#login == authentication.name or hasRole('ADMIN')"))//изменить настроить
                         .requestMatchers(HttpMethod.PUT,"/api/account/user/{id}/role").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET,"/api/account/users").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/api/account/users").hasAnyRole("ADMIN","USER")
                         .requestMatchers(HttpMethod.PUT,"/api/account/password").hasRole("USER")
-                        .requestMatchers(HttpMethod.DELETE,"/api/account/user/{id}").access(new WebExpressionAuthorizationManager(("#login == authentication.name or hasRole('ADMIN')")))
+                        .requestMatchers(HttpMethod.DELETE,"/api/account/user/{id}").hasAnyRole("ADMIN","USER")
                         .requestMatchers(HttpMethod.DELETE,"/api/pet/{id}")
                         .access((authentication, context) -> {
                                     boolean checkAuthor = webSecurity.checkPostAuthor(Long.valueOf(context.getVariables().get("id")),authentication.get().getName());
