@@ -32,7 +32,7 @@ public class PetServiceImpl implements PetService {
         // Пример кода для создания и сохранения Pet с фото
         Set<Photo> photoSet = new HashSet<>();
         for (String ph : photos) {
-            byte[] photoData = ph.getBytes();
+            byte[] photoData = Base64.getDecoder().decode(ph);
             Photo photo = new Photo(photoData);
             photoSet.add(photo);
         }

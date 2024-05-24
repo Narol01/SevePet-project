@@ -10,7 +10,6 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
 public class Photo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
