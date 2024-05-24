@@ -6,10 +6,15 @@ import ait.cohort34.petPosts.dto.PetDto;
 import ait.cohort34.petPosts.dto.UpdatePetDto;
 import ait.cohort34.petPosts.dto.exseption.PetNotFoundException;
 import ait.cohort34.petPosts.model.Pet;
+import ait.cohort34.petPosts.model.Photo;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Base64;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -20,8 +25,22 @@ public class PetServiceImpl implements PetService {
 
 
     @Override
-    public PetDto addNewPet(String login,NewPetDto NewPetDto) {
-        Pet pet = modelMapper.map(NewPetDto, Pet.class);
+    public PetDto addNewPet(String login,NewPetDto newPetDto) {
+        Set<Photo> photos = newPetDto.getPhoto().stream()
+                .map(Base64.getDecoder()::decode)
+                .map(Photo::new)
+                .collect(Collectors.toSet());
+
+        // Create the Pet entity
+        Pet pet = new Pet(newPetDto.getCaption(),
+                newPetDto.getPetType(),
+                newPetDto.getDescription(),
+                newPetDto.getCity(),
+                newPetDto.getCountry(),
+                photos,
+                newPetDto.getAge(),
+                newPetDto.getGender(),
+                newPetDto.getCategory());
         pet.setAuthor(login);
         petRepository.save(pet);
         return modelMapper.map(pet, PetDto.class);
@@ -36,7 +55,7 @@ public class PetServiceImpl implements PetService {
     @Transactional(readOnly = true)
     @Override
     public Iterable<PetDto> findPetsByFilter(String petType, String age, String gender, String country, String category, Boolean disability, String author) {
-        return petRepository.findPetsByFilter(petType, age, gender, country, category,  disability, author)
+        return petRepository.findPetsByFilter(petType, age, gender, country, category, author)
                 .map(pet -> modelMapper.map(pet, PetDto.class))
                 .toList();
     }
@@ -63,7 +82,11 @@ public class PetServiceImpl implements PetService {
         pet.setCountry(updatePetDto.getCountry());
         pet.setCity(updatePetDto.getCity());
         pet.setDescription(updatePetDto.getDescription());
-        pet.setPhoto(updatePetDto.getPhoto());
+        Set<Photo> photos = updatePetDto.getPhoto().stream()
+                .map(Base64.getDecoder()::decode)
+                .map(Photo::new)
+                .collect(Collectors.toSet());
+        pet.setPhotos(photos);
         petRepository.save(pet);
         return modelMapper.map(pet, PetDto.class);
     }

@@ -19,9 +19,9 @@ public interface PetRepository extends JpaRepository<Pet,Long > {
     @Query("select distinct p from Pet p where (:petType is null or p.petType =:petType)" +
             "and (:age is null or p.age=:age)" + "and (:gender is null or p.gender=:gender)" +
             "and (:country is null or p.country=:country)"+ "and (:category is null or p.category=:category)" +
-            "and (:disability is null or p.disability=:disability)"+ "and (:author is null or p.author=:author)")
+            "and (:author is null or p.author=:author)")
     Stream<Pet> findPetsByFilter(@Param("petType") String petType, @Param("age") String age,
                                  @Param("gender") String gender, @Param("country") String country,
-                                 @Param("category") String category, @Param("disability") Boolean disability,
+                                 @Param("category") String category,
                                  @Param("author") String author);
 }
