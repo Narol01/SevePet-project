@@ -23,7 +23,7 @@ public class UserAccount implements UserDetails {
     Long id;
     private String login;
     @Lob
-    @Column(name = "avatar", columnDefinition = "BLOB")
+    @Column(name = "avatar", columnDefinition = "LONGBLOB")
     private byte[] avatar;
     private String password;
     private String fullName;

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,35 +27,45 @@ public class PetServiceImpl implements PetService {
 
 
     @Override
-    public PetDto addNewPet(String login,NewPetDto newPetDto) {
-        Set<Photo> photos = newPetDto.getPhotos().stream()
-                .map(Base64.getDecoder()::decode)
-                .map(Photo::new)
-                .collect(Collectors.toSet());
-        for(Photo photo:photos){
-            System.out.println(photo);
+    public PetDto addNewPet(String login, NewPetDto newPetDto) {
+        Set<String> photos = newPetDto.getPhotos();
+        // Пример кода для создания и сохранения Pet с фото
+        Set<Photo> photoSet = new HashSet<>();
+        for (String ph : photos) {
+            byte[] photoData = ph.getBytes();
+            Photo photo = new Photo(photoData);
+            photoSet.add(photo);
         }
+
         // Create the Pet entity
         Pet pet = new Pet(newPetDto.getCaption(),
                 newPetDto.getPetType(),
                 newPetDto.getDescription(),
                 newPetDto.getCity(),
                 newPetDto.getCountry(),
-                photos,
+                photoSet,
                 newPetDto.getAge(),
                 newPetDto.getGender(),
                 newPetDto.getCategory());
         pet.setAuthor(login);
+
+        // Установите двустороннюю связь
+        for (Photo photo : photoSet) {
+            photo.setPet(pet);
+        }
+
         petRepository.save(pet);
         return modelMapper.map(pet, PetDto.class);
     }
+
     @Transactional(readOnly = true)
     @Override
     public Iterable<PetDto> findPetByType(String type) {
         return petRepository.findByPetTypeIgnoreCase(type)
-                .map(s->modelMapper.map(s,PetDto.class))
+                .map(s -> modelMapper.map(s, PetDto.class))
                 .toList();
     }
+
     @Transactional(readOnly = true)
     @Override
     public Iterable<PetDto> findPetsByFilter(String petType, String age, String gender, String country, String category, Boolean disability, String author) {
@@ -65,7 +76,7 @@ public class PetServiceImpl implements PetService {
 
     @Override
     public PetDto findPetById(Long id) {
-        Pet pet= petRepository.findById(id).orElseThrow(PetNotFoundException::new);
+        Pet pet = petRepository.findById(id).orElseThrow(PetNotFoundException::new);
 
         PetDto petDto = modelMapper.map(pet, PetDto.class);
 
@@ -81,11 +92,12 @@ public class PetServiceImpl implements PetService {
     @Override
     public Iterable<PetDto> findAllPets() {
 
-        return petRepository.findAll().stream().map(s->modelMapper.map(s,PetDto.class)).toList();
+        return petRepository.findAll().stream().map(s -> modelMapper.map(s, PetDto.class)).toList();
     }
+
     @Transactional
     @Override
-    public PetDto updatePet(Long  id, UpdatePetDto updatePetDto) {
+    public PetDto updatePet(Long id, UpdatePetDto updatePetDto) {
         Pet pet = petRepository.findById(id).orElseThrow(PetNotFoundException::new);
         pet.setCaption(updatePetDto.getCaption());
         pet.setCategory(updatePetDto.getCategory());
@@ -102,10 +114,11 @@ public class PetServiceImpl implements PetService {
         petRepository.save(pet);
         return modelMapper.map(pet, PetDto.class);
     }
+
     @Transactional
     @Override
-    public PetDto removePetById(Long  id) {
-        Pet pet=petRepository.findById(id).orElseThrow(PetNotFoundException::new);
+    public PetDto removePetById(Long id) {
+        Pet pet = petRepository.findById(id).orElseThrow(PetNotFoundException::new);
         petRepository.delete(pet);
         return modelMapper.map(pet, PetDto.class);
     }
