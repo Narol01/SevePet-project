@@ -23,5 +23,5 @@ public class PetDto {
     String city;
     String description;
     LocalDate dateCreate;
-    LocalDate dateDeadline;
+    LocalDate deadline;
 }

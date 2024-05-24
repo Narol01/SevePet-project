@@ -54,10 +54,6 @@ public class UserAccountController {
     @PutMapping("/password")
     @ResponseStatus(HttpStatus.NO_CONTENT) // Аннотация для установки статуса ответа 204
     public void changePassword(@RequestBody NewPasswordDto passwordDto) {
-//  Получаем текущего аутентифицированного пользователя
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        UserAccount userAccount = (UserAccount) authentication.getPrincipal();
-//        Long userId = userAccount.getId();
         String login = (String)authService.getAuthInfo().getPrincipal();
         // Вызываем сервис для изменения пароля
         userAccountService.changePassword(login, passwordDto);
@@ -68,3 +64,7 @@ public class UserAccountController {
         return userAccountService.getTelegram(id);
     }
 }
+//  Получаем текущего аутентифицированного пользователя
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        UserAccount userAccount = (UserAccount) authentication.getPrincipal();
+//        Long userId = userAccount.getId();
