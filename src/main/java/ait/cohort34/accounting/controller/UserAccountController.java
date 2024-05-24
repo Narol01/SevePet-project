@@ -1,16 +1,12 @@
 package ait.cohort34.accounting.controller;
 
 import ait.cohort34.accounting.dto.*;
-import ait.cohort34.accounting.model.UserAccount;
 import ait.cohort34.accounting.service.UserAccountService;
 import ait.cohort34.security.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -32,8 +28,11 @@ public class UserAccountController {
 
     @GetMapping
     public UserDto getUser() {
-        return userAccountService.getUser((String)authService.getAuthInfo().getPrincipal());
-
+        return userAccountService.getUser((String) authService.getAuthInfo().getPrincipal());
+    }
+    @GetMapping("/{author}")
+    public UserDto getUser(@PathVariable String author) {
+        return userAccountService.getUser(author);
     }
 
     @DeleteMapping("/user/{id}")
@@ -60,7 +59,7 @@ public class UserAccountController {
     }
 
     @GetMapping("/user/{id}/telegram")
-    public String getTelegram(@PathVariable Long id){
+    public String getTelegram(@PathVariable Long id) {
         return userAccountService.getTelegram(id);
     }
 }

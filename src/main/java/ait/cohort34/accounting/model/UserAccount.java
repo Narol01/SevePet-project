@@ -20,7 +20,9 @@ public class UserAccount implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     private String login;
-    private String avatar;
+    @Lob
+    @Column(name = "avatar", columnDefinition = "BLOB")
+    private byte[] avatar;
     private String password;
     private String fullName;
     private String email;
@@ -35,7 +37,7 @@ public class UserAccount implements UserDetails {
     )
     private Set<Role> roles;
 
-    public UserAccount(String login,String avatar, String password, String fullName, String email, String website, String phone, String telegram) {
+    public UserAccount(String login,byte[] avatar, String password, String fullName, String email, String website, String phone, String telegram) {
         this.login = login;
         this.avatar = avatar;
         this.password = password;

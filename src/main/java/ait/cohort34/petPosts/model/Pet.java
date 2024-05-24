@@ -9,6 +9,7 @@ import lombok.Setter;
 
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -27,23 +28,22 @@ public class Pet {
     String category;
     String gender;
     String age;
-    Boolean disability;
-    @ElementCollection
-    Set<String> photo;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "pet_id")
+    private Set<Photo> photos = new HashSet<>();
     String country;
     String city;
     String description;
     LocalDate dateCreate  = LocalDate.now();
     LocalDate deadline = LocalDate.now().plusMonths(3);
 
-    public Pet(String caption, String type, String description, String city, String country, Set<String> photo, Boolean disability, String age, String gender, String category) {
+    public Pet(String caption, String type, String description, String city, String country, Set<Photo> photos, String age, String gender, String category) {
         this.caption = caption;
         this.petType = type;
         this.description = description;
         this.city = city;
         this.country = country;
-        this.photo = photo;
-        this.disability = disability;
+        this.photos = photos;
         this.age = age;
         this.gender = gender;
         this.category = category;

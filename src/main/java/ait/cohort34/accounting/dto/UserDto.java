@@ -12,6 +12,7 @@ import java.util.Set;
 public class UserDto {
     private Long id;
     private String fullName;
+    @Setter
     private String avatar;
     private String login;
     private String email;

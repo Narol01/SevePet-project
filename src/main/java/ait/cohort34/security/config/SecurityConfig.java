@@ -3,11 +3,9 @@ package ait.cohort34.security.config;
 import ait.cohort34.security.filter.TokenFilter;
 import ait.cohort34.security.service.AuthService;
 import ait.cohort34.security.service.CustomWebSecurity;
-import ait.cohort34.security.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -15,12 +13,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import javax.management.relation.Role;
 
 @Configuration
 @EnableWebSecurity
@@ -50,9 +45,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(x->x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(x->x
-                        .requestMatchers(HttpMethod.GET,"/api/account","/api/pet/found/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/account","/api/pet/found/**","api/pet/{id}").permitAll()
                         .requestMatchers(AUTH_WHITELIST).permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/auth/login","/api/auth/refresh","/api/account").permitAll()
+
                         .requestMatchers(HttpMethod.PUT,"/api/account/password","/api/pet/{id}","/api/account/user/{id}").hasRole("USER")
                         .requestMatchers(HttpMethod.GET,"/api/account/users","/api/account/user/{id}").hasAnyRole("ADMIN","USER")
                         //.access(new WebExpressionAuthorizationManager("#login == authentication.name or hasRole('ADMIN')"))
@@ -60,6 +56,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE,"/api/account/user/{id}").hasAnyRole("ADMIN", "USER")
                         //.access(new WebExpressionAuthorizationManager(("#login == authentication.name or hasRole('ADMIN')")))
                         .requestMatchers(HttpMethod.GET,"/api/pet/{id}").hasAnyRole("USER","ADMIN")
+
                         .requestMatchers(HttpMethod.DELETE,"/api/pet/{id}")
                         .access((authentication, context) -> {
                                     boolean checkAuthor = webSecurity.checkPetAuthor(Long.valueOf(context.getVariables().get("id")),authentication.get().getName());

@@ -19,10 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +48,11 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
         }
         userAccount.setRoles(new HashSet<>(Collections.singletonList(userRole)));
         userAccount.setPassword(password);
+
+        if (userRegisterDto.getAvatar() != null && !userRegisterDto.getAvatar().isEmpty()) {
+            byte[] avatarBytes = Base64.getDecoder().decode(userRegisterDto.getAvatar());
+            userAccount.setAvatar(avatarBytes);
+        }
         userAccountRepository.save(userAccount);
         return modelMapper.map(userAccount, UserDto.class);
     }
@@ -66,14 +68,22 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
     @Override
     public UserDto getUser(String login) {
         UserAccount userAccount = userAccountRepository.findByLogin(login).orElseThrow(UserNotFoundException::new);
-        return modelMapper.map(userAccount, UserDto.class);
+        UserDto userDto = modelMapper.map(userAccount, UserDto.class);
+        // Конвертирование аватара в base64
+        if (userAccount.getAvatar() != null) {
+            String base64Avatar = Base64.getEncoder().encodeToString(userAccount.getAvatar());
+            userDto.setAvatar(base64Avatar);
+        }
+        return userDto;
     }
     @Transactional
     @Override
     public UserDto removeUser(Long id) {
         UserAccount userAccount = userAccountRepository.findById(id).orElseThrow(UserNotFoundException::new);
         userAccountRepository.delete(userAccount);
-        List<Pet> petList = petRepository.findPetsByAuthorIgnoreCase(userAccount.getUsername()).toList();
+
+        List<Pet> petList = petRepository.findByAuthorIgnoreCase(userAccount.getUsername()).toList();
+
         petRepository.deleteAll(petList);
         return modelMapper.map(userAccount, UserDto.class);
     }
@@ -97,7 +107,8 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
             userAccount.setWebsite(userEditDto.getWebsite());
         }
         if (userEditDto.getAvatar() != null) {
-            userAccount.setAvatar(userEditDto.getAvatar());
+            byte[] avatarBytes = Base64.getDecoder().decode(userEditDto.getAvatar());
+            userAccount.setAvatar(avatarBytes);
         }
         userAccountRepository.save(userAccount);
         return modelMapper.map(userAccount, UserDto.class);
@@ -144,7 +155,7 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
     public void run(String... args) throws Exception {
         if (!userAccountRepository.existsByLogin("admin")) {
             String password = passwordEncoder.encode("admin");
-            UserAccount userAccount = new UserAccount("admin", "", password, "","","","","");
+            UserAccount userAccount = new UserAccount("admin", null, password, "","","","","");
             Role userRole = roleRepository.findByTitle("ADMIN");
             if (userRole == null) {
                 userRole = new Role("ROLE_ADMIN");
