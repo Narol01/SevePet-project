@@ -28,8 +28,7 @@ public class Pet {
     String category;
     String gender;
     String age;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "pet_id")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "pet")
     private Set<Photo> photos = new HashSet<>();
     String country;
     String city;

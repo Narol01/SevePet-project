@@ -10,14 +10,17 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
 public class Photo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Lob
+    @Column(name = "photos", columnDefinition = "LONGBLOB")
     private byte[] data;
+
+    @ManyToOne
+    @JoinColumn(name = "pet_id")
+    private Pet pet;
 
     public Photo(byte[] data) {
         this.data = data;
