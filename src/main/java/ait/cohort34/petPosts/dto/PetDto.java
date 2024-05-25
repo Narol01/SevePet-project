@@ -21,6 +21,7 @@ public class PetDto {
     String country;
     String city;
     String description;
+    private Set<String> photoUrls;
     LocalDate dateCreate;
     LocalDate deadline;
 }

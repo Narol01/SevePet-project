@@ -1,17 +1,22 @@
 package ait.cohort34.petPosts.service;
 
 import ait.cohort34.petPosts.dao.PetRepository;
+import ait.cohort34.petPosts.dao.PhotoRepository;
 import ait.cohort34.petPosts.dto.NewPetDto;
 import ait.cohort34.petPosts.dto.PetDto;
 import ait.cohort34.petPosts.dto.UpdatePetDto;
 import ait.cohort34.petPosts.dto.exseption.PetNotFoundException;
+import ait.cohort34.petPosts.dto.exseption.PhotoNotFoundException;
 import ait.cohort34.petPosts.model.Pet;
 import ait.cohort34.petPosts.model.Photo;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
@@ -21,41 +26,54 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class PetServiceImpl implements PetService {
-
     final ModelMapper modelMapper;
+    @Autowired
     final PetRepository petRepository;
+    @Autowired
+    private PhotoRepository photoRepository;
 
 
     @Override
-    public PetDto addNewPet(String login, NewPetDto newPetDto) {
-        Set<String> photos = newPetDto.getPhotos();
-        // Пример кода для создания и сохранения Pet с фото
+    public PetDto addNewPet(String login, NewPetDto newPetDto, MultipartFile[] files) throws IOException {
+        // Преобразование файлов в сущности Photo
         Set<Photo> photoSet = new HashSet<>();
-        for (String ph : photos) {
-            byte[] photoData = Base64.getDecoder().decode(ph);
-            Photo photo = new Photo(photoData);
+        for (MultipartFile file : files) {
+            Photo photo = new Photo();
+            photo.setName(file.getOriginalFilename());
+            photo.setType(file.getContentType());
+            photo.setData(file.getBytes());
             photoSet.add(photo);
         }
-
-        // Create the Pet entity
-        Pet pet = new Pet(newPetDto.getCaption(),
-                newPetDto.getPetType(),
-                newPetDto.getDescription(),
-                newPetDto.getCity(),
-                newPetDto.getCountry(),
-                photoSet,
-                newPetDto.getAge(),
-                newPetDto.getGender(),
-                newPetDto.getCategory());
+        Pet pet = new Pet();
+        pet.setCaption(newPetDto.getCaption());
+        pet.setPetType(newPetDto.getPetType());
+        pet.setDescription(newPetDto.getDescription());
+        pet.setCity(newPetDto.getCity());
+        pet.setCountry(newPetDto.getCountry());
+        pet.setPhotos(photoSet);
+        pet.setAge(newPetDto.getAge());
+        pet.setGender(newPetDto.getGender());
+        pet.setCategory(newPetDto.getCategory());
         pet.setAuthor(login);
 
-        // Установите двустороннюю связь
+        petRepository.save(pet);
         for (Photo photo : photoSet) {
             photo.setPet(pet);
+            photoRepository.save(photo);
         }
 
-        petRepository.save(pet);
-        return modelMapper.map(pet, PetDto.class);
+        PetDto petDto = modelMapper.map(pet, PetDto.class);
+        Set<String> photoUrls = photoSet.stream()
+                .map(photo -> "/pets/photos/" + photo.getId())
+                .collect(Collectors.toSet());
+        petDto.setPhotoUrls(photoUrls);
+
+        return petDto;
+    }
+
+    public byte[] getPhotoById(Long photoId) {
+        Photo photo = photoRepository.findById(photoId).orElseThrow(PhotoNotFoundException::new);
+        return photo.getData();
     }
 
     @Transactional(readOnly = true)
@@ -81,12 +99,13 @@ public class PetServiceImpl implements PetService {
         PetDto petDto = modelMapper.map(pet, PetDto.class);
 
         if (pet.getPhotos() != null) {
-            Set<String> photoList = pet.getPhotos().stream()
-                    .map(photo -> Base64.getEncoder().encodeToString(photo.getData()))
+            Set<String> photoUrls = pet.getPhotos().stream()
+                    .map(photo -> "/pets/photos/" + photo.getId())
                     .collect(Collectors.toSet());
-            petDto.setPhotos(photoList);
+            petDto.setPhotoUrls(photoUrls);
         }
-        return modelMapper.map(pet, PetDto.class);
+
+        return petDto;
     }
 
     @Override

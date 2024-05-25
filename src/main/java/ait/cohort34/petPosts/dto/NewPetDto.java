@@ -7,18 +7,18 @@ import lombok.Setter;
 
 import java.util.Set;
 
+
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
 public class NewPetDto {
-    String caption;
-    String petType;
-    String category;
-    String gender;
-    String age;
-    Set<String> photos;
-    String country;
-    String city;
-    String description;
+    private String caption;
+    private String petType;
+    private String category;
+    private String gender;
+    private String age;
+    private String country;
+    private String city;
+    private String description;
 }
