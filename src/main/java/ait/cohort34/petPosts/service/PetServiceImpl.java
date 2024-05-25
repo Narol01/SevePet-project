@@ -107,11 +107,16 @@ public class PetServiceImpl implements PetService {
         pet.setCountry(updatePetDto.getCountry());
         pet.setCity(updatePetDto.getCity());
         pet.setDescription(updatePetDto.getDescription());
-        Set<Photo> photos = updatePetDto.getPhotos().stream()
-                .map(Base64.getDecoder()::decode)
-                .map(Photo::new)
-                .collect(Collectors.toSet());
+
+        Set<Photo> photos = new HashSet<>();
+        if (updatePetDto.getPhotos() != null) {
+            photos = updatePetDto.getPhotos().stream()
+                    .map(Base64.getDecoder()::decode)
+                    .map(Photo::new)
+                    .collect(Collectors.toSet());
+        }
         pet.setPhotos(photos);
+
         petRepository.save(pet);
         return modelMapper.map(pet, PetDto.class);
     }

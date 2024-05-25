@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -107,12 +108,22 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
             userAccount.setWebsite(userEditDto.getWebsite());
         }
         if (userEditDto.getAvatar() != null) {
-            byte[] avatarBytes = Base64.getDecoder().decode(userEditDto.getAvatar());
-            userAccount.setAvatar(avatarBytes);
+            if (isValidBase64(userEditDto.getAvatar())) {
+                byte[] avatarBytes = Base64.getDecoder().decode(userEditDto.getAvatar());
+                userAccount.setAvatar(avatarBytes);
+            } else {
+                throw new IllegalArgumentException("Invalid Base64 format for avatar image.");
+            }
         }
         userAccountRepository.save(userAccount);
         return modelMapper.map(userAccount, UserDto.class);
     }
+
+    private boolean isValidBase64(String base64String) {
+        final String base64Regex = "^[A-Za-z0-9+/]+[=]{0,2}$";
+        return base64String.matches(base64Regex);
+    }
+
     @Transactional
     @Override
     public boolean changeRole(Long id) {
