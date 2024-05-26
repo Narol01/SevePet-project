@@ -70,8 +70,12 @@ public class PetController{
         return petService.findAllPets();
     }
     @PutMapping("/{id}")
-    public PetDto updatePet(@PathVariable Long  id,@RequestBody UpdatePetDto updatePetDto) {
-        return petService.updatePet(id,updatePetDto);
+    public PetDto updatePet(@PathVariable Long id,
+                            @RequestPart String petDto,
+                            @RequestPart(required = false) MultipartFile[] files) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        UpdatePetDto updatePetDto = objectMapper.readValue(petDto, UpdatePetDto.class);
+        return petService.updatePet(id,updatePetDto,files);
     }
 
     @DeleteMapping("/{id}")

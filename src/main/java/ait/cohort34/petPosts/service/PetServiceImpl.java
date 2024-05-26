@@ -17,9 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Base64;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -64,7 +62,7 @@ public class PetServiceImpl implements PetService {
 
         PetDto petDto = modelMapper.map(pet, PetDto.class);
         Set<String> photoUrls = photoSet.stream()
-                .map(photo -> "/pets/photos/" + photo.getId())
+                .map(photo -> "/api/pets/photos/" + photo.getId())
                 .collect(Collectors.toSet());
         petDto.setPhotoUrls(photoUrls);
 
@@ -100,7 +98,7 @@ public class PetServiceImpl implements PetService {
 
         if (pet.getPhotos() != null) {
             Set<String> photoUrls = pet.getPhotos().stream()
-                    .map(photo -> "/pets/photos/" + photo.getId())
+                    .map(photo -> "/api/pets/photos/" + photo.getId())
                     .collect(Collectors.toSet());
             petDto.setPhotoUrls(photoUrls);
         }
@@ -116,7 +114,7 @@ public class PetServiceImpl implements PetService {
 
     @Transactional
     @Override
-    public PetDto updatePet(Long id, UpdatePetDto updatePetDto) {
+    public PetDto updatePet(Long id, UpdatePetDto updatePetDto, MultipartFile[] files) throws IOException {
         Pet pet = petRepository.findById(id).orElseThrow(PetNotFoundException::new);
         pet.setCaption(updatePetDto.getCaption());
         pet.setCategory(updatePetDto.getCategory());
@@ -125,13 +123,31 @@ public class PetServiceImpl implements PetService {
         pet.setCountry(updatePetDto.getCountry());
         pet.setCity(updatePetDto.getCity());
         pet.setDescription(updatePetDto.getDescription());
-        Set<Photo> photos = updatePetDto.getPhotos().stream()
-                .map(Base64.getDecoder()::decode)
-                .map(Photo::new)
-                .collect(Collectors.toSet());
-        pet.setPhotos(photos);
+        Set<Photo> photoSet = new HashSet<>();
+        if (files != null) {
+            for (MultipartFile file : files) {
+                Photo photo = new Photo();
+                photo.setName(file.getOriginalFilename());
+                photo.setType(file.getContentType());
+                photo.setData(file.getBytes());
+                photo.setPet(pet); // Устанавливаем связь с питомцем
+                photoSet.add(photo);
+            }
+        }
+        if (!photoSet.isEmpty()) {
+
+            Set<Photo> existingPhotos = pet.getPhotos();
+            photoRepository.deleteAll(existingPhotos);
+            pet.setPhotos(photoSet);
+            photoRepository.saveAll(photoSet);
+        }
         petRepository.save(pet);
-        return modelMapper.map(pet, PetDto.class);
+        PetDto petDto = modelMapper.map(pet, PetDto.class);
+        Set<String> photoUrls = pet.getPhotos().stream()
+                .map(photo -> "/api/pets/photos/" + photo.getId())
+                .collect(Collectors.toSet());
+        petDto.setPhotoUrls(photoUrls);
+        return petDto;
     }
 
     @Transactional

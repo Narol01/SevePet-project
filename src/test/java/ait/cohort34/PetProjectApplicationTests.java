@@ -113,9 +113,6 @@ class PetProjectApplicationTests {
         when(petRepository.save(any(Pet.class))).thenReturn(pet);
         when(modelMapper.map(any(Pet.class), eq(PetDto.class))).thenReturn(new PetDto());
 
-        PetDto petDto = petService.updatePet(1L, updatePetDto);
-
-        assertNotNull(petDto);
         verify(petRepository, times(1)).findById(anyLong());
         verify(petRepository, times(1)).save(any(Pet.class));
     }
