@@ -6,9 +6,16 @@ import ait.cohort34.petPosts.dto.UpdatePetDto;
 import ait.cohort34.petPosts.service.PetService;
 import ait.cohort34.security.service.AuthService;
 import ait.cohort34.security.service.TokenService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,17 +23,30 @@ import org.springframework.web.bind.annotation.*;
 public class PetController{
     @Autowired
     final PetService petService;
+    @Autowired
     final AuthService authService;
 
     @PostMapping
-    public PetDto addNewPet(@RequestBody NewPetDto newPetDto) {//сделать запрос по токену
-        System.out.println(authService.getAuthInfo().getCredentials());
-        return petService.addNewPet((String)authService.getAuthInfo().getPrincipal(),newPetDto);
-        // в дальнейшем при создании поста будет передаваться принципал логин что упростит отправку запроса
+    public PetDto addNewPet(@RequestPart("newPet") String newPet,
+                            @RequestPart("photos") MultipartFile[] files) throws IOException {
+        // Получение логина из аутентификационной информации
+        ObjectMapper objectMapper = new ObjectMapper();
+        NewPetDto newPetDto = objectMapper.readValue(newPet, NewPetDto.class);
+        String login = (String) authService.getAuthInfo().getPrincipal();
+        return petService.addNewPet(login, newPetDto, files);
     }
+
     @GetMapping("/{id}")
     public PetDto findPetById(@PathVariable Long id) {
         return petService.findPetById(id);
+    }
+    @GetMapping("/photos/{id}")
+    public ResponseEntity<byte[]> getPhotoById(@PathVariable Long id) {
+        byte[] photoData = petService.getPhotoById(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=photo.jpg")
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(photoData);
     }
 
     @GetMapping("/found")
