@@ -17,7 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -77,7 +79,15 @@ public class PetServiceImpl implements PetService {
     @Transactional(readOnly = true)
     @Override
     public Iterable<PetDto> findPetByType(String type) {
-        return petRepository.findByPetTypeIgnoreCase(type)
+        List<Pet> petByType=petRepository.findByPetTypeIgnoreCase(type).toList();
+        for (Pet pet : petByType) {
+            if(LocalDate.now().isAfter(pet.getDeadline())){
+                petByType.remove(pet);
+                petRepository.delete(pet);
+
+            }
+        }
+        return petByType.stream()
                 .map(s -> modelMapper.map(s, PetDto.class))
                 .toList();
     }
