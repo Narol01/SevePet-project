@@ -3,11 +3,9 @@ package ait.cohort34.accounting.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -22,15 +20,14 @@ public class UserAccount implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     private String login;
-    @Lob
-    @Column(name = "avatar", columnDefinition = "LONGBLOB")
-    private byte[] avatar;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY,mappedBy = "userAccount")
+    private PhotoUser avatar;
     private String password;
     private String fullName;
     private String email;
     private String website;
     private String phone;
-    private String telegram;//возможность заменить на чат
+    private String telegram;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_role",
@@ -39,7 +36,7 @@ public class UserAccount implements UserDetails {
     )
     private Set<Role> roles;
 
-    public UserAccount(String login,byte[] avatar, String password, String fullName, String email, String website, String phone, String telegram) {
+    public UserAccount(String login, PhotoUser avatar, String password, String fullName, String email, String website, String phone, String telegram) {
         this.login = login;
         this.avatar = avatar;
         this.password = password;

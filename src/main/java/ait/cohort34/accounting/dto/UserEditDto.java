@@ -11,5 +11,4 @@ public class UserEditDto {
     private String email;
     private String website;
     private String phone;
-    private String avatar;
 }

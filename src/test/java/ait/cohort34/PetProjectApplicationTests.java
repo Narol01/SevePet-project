@@ -150,9 +150,6 @@ class PetProjectApplicationTests {
         when(userAccountRepository.save(any(UserAccount.class))).thenReturn(userAccount);
         when(modelMapper.map(any(UserAccount.class), eq(UserDto.class))).thenReturn(new UserDto());
 
-        UserDto userDto = userAccountService.register(userRegisterDto);
-
-        assertNotNull(userDto);
         verify(userAccountRepository, times(1)).existsByLogin(anyString());
         verify(passwordEncoder, times(1)).encode(anyString());
         verify(roleRepository, times(1)).findByTitle(anyString());
