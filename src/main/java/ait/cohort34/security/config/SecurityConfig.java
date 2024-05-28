@@ -45,13 +45,15 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(x->x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(x->x
-                        .requestMatchers(HttpMethod.GET,"/api/account","/api/pet/found/**","api/pet/{id}","api/pet/photos/{id}").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/account","/api/pet/found/**","api/pet/{id}","/api/pet/photos/{id}","/api/account/photos/{id}").permitAll()
                         .requestMatchers(AUTH_WHITELIST).permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/auth/login","/api/auth/refresh","/api/account").permitAll()
+
 
                         .requestMatchers(HttpMethod.PUT,"/api/account/password","/api/pet/{id}","/api/account/user/{id}").hasRole("USER")
                         .requestMatchers(HttpMethod.GET,"/api/account/users","/api/account/user/{id}","/api/account/{author}").hasAnyRole("ADMIN","USER")
                         //.access(new WebExpressionAuthorizationManager("#login == authentication.name or hasRole('ADMIN')"))
+
                         .requestMatchers(HttpMethod.PUT,"/api/account/user/{id}/role").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE,"/api/account/user/{id}").hasAnyRole("ADMIN", "USER")
                         //.access(new WebExpressionAuthorizationManager(("#login == authentication.name or hasRole('ADMIN')")))

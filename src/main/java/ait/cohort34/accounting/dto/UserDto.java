@@ -9,15 +9,16 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Setter
 public class UserDto {
     private Long id;
     private String fullName;
-    @Setter
     private String avatar;
     private String login;
     private String email;
     private String website;
     private String phone;
     private String telegram;
+    private String photoUrls;
     private Set<Role> role;
 }

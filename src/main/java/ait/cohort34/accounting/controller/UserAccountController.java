@@ -2,11 +2,19 @@ package ait.cohort34.accounting.controller;
 
 import ait.cohort34.accounting.dto.*;
 import ait.cohort34.accounting.service.UserAccountService;
+import ait.cohort34.petPosts.dto.NewPetDto;
 import ait.cohort34.security.service.AuthService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -17,8 +25,20 @@ public class UserAccountController {
     final AuthService authService;
 
     @PostMapping
-    public UserDto register(@RequestBody UserRegisterDto userRegisterDto) {
-        return userAccountService.register(userRegisterDto);
+    public ResponseEntity<UserDto> register(@RequestParam("registerDto") String registerDto,@RequestParam("image") MultipartFile image) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserRegisterDto UserRegisterDto = objectMapper.readValue(registerDto, UserRegisterDto.class);
+        UserDto userDto =userAccountService.register(UserRegisterDto,image);
+        return new ResponseEntity<>(userDto, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/photos/{id}")
+    public ResponseEntity<byte[]> getPhotoById(@PathVariable Long id) {
+        byte[] photoData = userAccountService.getPhotoById(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=photo.jpg")
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(photoData);
     }
 
     @GetMapping("/users")
@@ -41,8 +61,10 @@ public class UserAccountController {
     }
 
     @PutMapping("/user/{id}")
-    public UserDto updateUser(@PathVariable Long id, @RequestBody UserEditDto userEditDto) {
-        return userAccountService.updateUser(id, userEditDto);
+    public UserDto updateUser(@PathVariable Long id, @RequestParam("editDto") String userEditDto,@RequestParam("image") MultipartFile image) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserEditDto userEditDtoDto = objectMapper.readValue(userEditDto, UserEditDto.class);
+        return userAccountService.updateUser(id, userEditDtoDto,image);
     }
 
     @PutMapping("/user/{id}/role")

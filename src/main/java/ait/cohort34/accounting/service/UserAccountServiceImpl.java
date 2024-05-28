@@ -2,13 +2,16 @@ package ait.cohort34.accounting.service;
 
 import ait.cohort34.accounting.dao.RoleRepository;
 import ait.cohort34.accounting.dao.UserAccountRepository;
+import ait.cohort34.accounting.dao.UserPhotoRepository;
 import ait.cohort34.accounting.dto.*;
 import ait.cohort34.accounting.dto.exceptions.UserExistsException;
 import ait.cohort34.accounting.dto.exceptions.UserNotFoundException;
 import ait.cohort34.accounting.model.Role;
 import ait.cohort34.accounting.model.UserAccount;
 import ait.cohort34.petPosts.dao.PetRepository;
+import ait.cohort34.petPosts.dto.exseption.PhotoNotFoundException;
 import ait.cohort34.petPosts.model.Pet;
+import ait.cohort34.accounting.model.PhotoUser;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -18,8 +21,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
+
 
 @Service
 @RequiredArgsConstructor
@@ -32,29 +38,49 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
     @Autowired
     private EntityManager entityManager;
     final RoleRepository roleRepository;
+    final UserPhotoRepository photoRepository;
 
     @Override
     @Transactional
-    public UserDto register(UserRegisterDto userRegisterDto) {
+    public UserDto register(UserRegisterDto userRegisterDto, MultipartFile image) throws IOException {
         if (userAccountRepository.existsByLogin(userRegisterDto.getLogin())) {
             throw new UserExistsException("A user with this login already exists.");
         }
+
         UserAccount userAccount = modelMapper.map(userRegisterDto, UserAccount.class);
         String password = passwordEncoder.encode(userRegisterDto.getPassword());
+        userAccount.setPassword(password);
+
         Role userRole = roleRepository.findByTitle("ROLE_USER");
         if (userRole == null) {
             userRole = new Role("ROLE_USER");
             roleRepository.save(userRole);
         }
         userAccount.setRoles(new HashSet<>(Collections.singletonList(userRole)));
-        userAccount.setPassword(password);
 
-        if (userRegisterDto.getAvatar() != null && !userRegisterDto.getAvatar().isEmpty()) {
-            byte[] avatarBytes = Base64.getDecoder().decode(userRegisterDto.getAvatar());
-            userAccount.setAvatar(avatarBytes);
+        if (image != null && !image.isEmpty()) {
+            PhotoUser photo = new PhotoUser();
+            photo.setName(image.getOriginalFilename());
+            photo.setType(image.getContentType());
+            photo.setData(image.getBytes());
+
+            // Устанавливаем связь между фото и аккаунтом
+            userAccount.setAvatar(photo);
+            photo.setUserAccount(userAccount);
+
+            // Сохраняем пользователя (каскадное сохранение сохранит и фото)
+            userAccountRepository.save(userAccount);
+        } else {
+            userAccountRepository.save(userAccount);
         }
-        userAccountRepository.save(userAccount);
-        return modelMapper.map(userAccount, UserDto.class);
+
+        UserDto userDto = modelMapper.map(userAccount, UserDto.class);
+        if (userAccount.getAvatar() != null) {
+            String photoUrl = "/api/account/photos/" + userAccount.getAvatar().getId();
+            userDto.setPhotoUrls(photoUrl);
+        }
+
+        return userDto;
     }
 
     @Override
@@ -62,6 +88,11 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
         Iterable<UserAccount> userAccounts = userAccountRepository.findAll();
         List<UserDto> users = new ArrayList<>();
         userAccounts.forEach(userAccount -> users.add(modelMapper.map(userAccount, UserDto.class)));
+        userAccounts.forEach(userAccount -> {
+            users.forEach(userDto -> { if (userAccount.getAvatar() != null) {
+                String photoUrl = "/api/account/photos/" + userAccount.getAvatar().getId();
+                userDto.setPhotoUrls(photoUrl);
+            }});});
         return users;
     }
 
@@ -69,13 +100,18 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
     public UserDto getUser(String login) {
         UserAccount userAccount = userAccountRepository.findByLogin(login).orElseThrow(UserNotFoundException::new);
         UserDto userDto = modelMapper.map(userAccount, UserDto.class);
-        // Конвертирование аватара в base64
         if (userAccount.getAvatar() != null) {
-            String base64Avatar = Base64.getEncoder().encodeToString(userAccount.getAvatar());
-            userDto.setAvatar(base64Avatar);
+            String photoUrl = "/api/account/photos/" + userAccount.getAvatar().getId();
+            userDto.setPhotoUrls(photoUrl);
         }
         return userDto;
     }
+    @Override
+    public byte[] getPhotoById(Long id) {
+        PhotoUser photoUser = photoRepository.findById(id).orElseThrow(PhotoNotFoundException::new);
+        return photoUser.getData();
+    }
+
     @Transactional
     @Override
     public UserDto removeUser(Long id) {
@@ -89,7 +125,7 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
     }
     @Transactional
     @Override
-    public UserDto updateUser(Long id, UserEditDto userEditDto) {
+    public UserDto updateUser(Long id, UserEditDto userEditDto, MultipartFile image) throws IOException {
         UserAccount userAccount = userAccountRepository.findById(id).orElseThrow(UserNotFoundException::new);
         if (userEditDto.getFullName() != null) {
             userAccount.setFullName(userEditDto.getFullName());
@@ -106,21 +142,26 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
         if (userEditDto.getWebsite() != null) {
             userAccount.setWebsite(userEditDto.getWebsite());
         }
-        if (userEditDto.getAvatar() != null) {
-            if (isValidBase64(userEditDto.getAvatar())) {
-                byte[] avatarBytes = Base64.getDecoder().decode(userEditDto.getAvatar());
-                userAccount.setAvatar(avatarBytes);
-            } else {
-                throw new IllegalArgumentException("Invalid Base64 format for avatar image.");
-            }
+
+        if (image != null && !image.isEmpty()) {
+                byte[] newPhotoData = image.getBytes();
+                if (userAccount.getAvatar() != null) {
+                    userAccount.getAvatar().setData(newPhotoData);
+                } else {
+                    PhotoUser newPhoto = new PhotoUser();
+                    newPhoto.setData(newPhotoData);
+                    newPhoto.setUserAccount(userAccount);
+                    userAccount.setAvatar(newPhoto);
+                }
+
         }
         userAccountRepository.save(userAccount);
-        return modelMapper.map(userAccount, UserDto.class);
-    }
-
-    private boolean isValidBase64(String base64String) {
-        final String base64Regex = "^[A-Za-z0-9+/]+[=]{0,2}$";
-        return base64String.matches(base64Regex);
+        UserDto userDto = modelMapper.map(userAccount, UserDto.class);
+        if (userAccount.getAvatar() != null) {
+            String photoUrl = "/api/account/photos/" + userAccount.getAvatar().getId();
+            userDto.setPhotoUrls(photoUrl);
+        }
+        return userDto;
     }
 
     @Transactional

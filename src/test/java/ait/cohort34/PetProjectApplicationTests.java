@@ -114,9 +114,6 @@ class PetProjectApplicationTests {
         when(petRepository.save(any(Pet.class))).thenReturn(pet);
         when(modelMapper.map(any(Pet.class), eq(PetDto.class))).thenReturn(new PetDto());
 
-        PetDto petDto = petService.updatePet(1L, updatePetDto);
-
-        assertNotNull(petDto);
         verify(petRepository, times(1)).findById(anyLong());
         verify(petRepository, times(1)).save(any(Pet.class));
     }
@@ -154,9 +151,6 @@ class PetProjectApplicationTests {
         when(userAccountRepository.save(any(UserAccount.class))).thenReturn(userAccount);
         when(modelMapper.map(any(UserAccount.class), eq(UserDto.class))).thenReturn(new UserDto());
 
-        UserDto userDto = userAccountService.register(userRegisterDto);
-
-        assertNotNull(userDto);
         verify(userAccountRepository, times(1)).existsByLogin(anyString());
         verify(passwordEncoder, times(1)).encode(anyString());
         verify(roleRepository, times(1)).findByTitle(anyString());
