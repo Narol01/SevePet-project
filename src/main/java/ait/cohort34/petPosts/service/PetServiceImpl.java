@@ -65,7 +65,7 @@ public class PetServiceImpl implements PetService {
 
         PetDto petDto = modelMapper.map(pet, PetDto.class);
         Set<String> photoUrls = photoSet.stream()
-                .map(photo -> "/pets/photos/" + photo.getId())
+                .map(photo -> "/api/pet/photos/" + photo.getId())
                 .collect(Collectors.toSet());
         petDto.setPhotoUrls(photoUrls);
 
@@ -101,7 +101,7 @@ public class PetServiceImpl implements PetService {
 
         if (pet.getPhotos() != null) {
             Set<String> photoUrls = pet.getPhotos().stream()
-                    .map(photo -> "/pets/photos/" + photo.getId())
+                    .map(photo -> "/api/pet/photos/" + photo.getId())
                     .collect(Collectors.toSet());
             petDto.setPhotoUrls(photoUrls);
         }

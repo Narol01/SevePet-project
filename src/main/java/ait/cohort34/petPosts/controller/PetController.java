@@ -40,6 +40,7 @@ public class PetController{
     public PetDto findPetById(@PathVariable Long id) {
         return petService.findPetById(id);
     }
+
     @GetMapping("/photos/{id}")
     public ResponseEntity<byte[]> getPhotoById(@PathVariable Long id) {
         byte[] photoData = petService.getPhotoById(id);

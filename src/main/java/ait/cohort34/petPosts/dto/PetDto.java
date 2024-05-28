@@ -12,6 +12,7 @@ import java.util.Set;
 @Setter
 public class PetDto {
     Long  id;
+    String author;
     String caption;
     String petType;
     String category;
