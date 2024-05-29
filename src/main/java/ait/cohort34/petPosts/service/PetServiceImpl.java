@@ -96,7 +96,7 @@ public class PetServiceImpl implements PetService {
 
     @Transactional(readOnly = true)
     @Override
-    public Iterable<PetDto> findPetsByFilter(String petType, String age, String gender, String country, String category, Boolean disability, String author) {
+    public Iterable<PetDto> findPetsByFilter(String petType, String age, String gender, String country, String category, String author) {
         return petRepository.findPetsByFilter(petType, age, gender, country, category, author)
                 .map(pet -> modelMapper.map(pet, PetDto.class))
                 .toList();
@@ -127,7 +127,9 @@ public class PetServiceImpl implements PetService {
     @Transactional
     @Override
     public PetDto updatePet(Long id, UpdatePetDto updatePetDto, MultipartFile[] files) throws IOException {
+
         Pet pet = petRepository.findById(id).orElseThrow(PetNotFoundException::new);
+
         pet.setCaption(updatePetDto.getCaption());
         pet.setCategory(updatePetDto.getCategory());
         pet.setGender(updatePetDto.getGender());
@@ -135,6 +137,7 @@ public class PetServiceImpl implements PetService {
         pet.setCountry(updatePetDto.getCountry());
         pet.setCity(updatePetDto.getCity());
         pet.setDescription(updatePetDto.getDescription());
+
         Set<Photo> photoSet = new HashSet<>();
         if (files != null) {
             for (MultipartFile file : files) {
@@ -157,7 +160,7 @@ public class PetServiceImpl implements PetService {
         petRepository.save(pet);
         PetDto petDto = modelMapper.map(pet, PetDto.class);
         Set<String> photoUrls = pet.getPhotos().stream()
-                .map(photo -> "/api/pets/photos/" + photo.getId())
+                .map(photo -> "/api/pet/photos/" + photo.getId())
                 .collect(Collectors.toSet());
         petDto.setPhotoUrls(photoUrls);
         return petDto;

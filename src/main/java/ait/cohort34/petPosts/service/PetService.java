@@ -14,7 +14,7 @@ public interface PetService {
     PetDto updatePet(Long  id,UpdatePetDto updatePetDto, MultipartFile[] files) throws IOException;
     PetDto removePetById(Long  id);
 
-    Iterable<PetDto> findPetsByFilter(String petType, String age, String gender, String country, String category, Boolean disability, String author);
+    Iterable<PetDto> findPetsByFilter(String petType, String age, String gender, String country, String category, String author);
 
     PetDto findPetById(Long id);
 

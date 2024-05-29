@@ -21,6 +21,5 @@ public interface PetRepository extends JpaRepository<Pet,Long > {
             "and (:author is null or p.author=:author)")
     Stream<Pet> findPetsByFilter(@Param("petType") String petType, @Param("age") String age,
                                  @Param("gender") String gender, @Param("country") String country,
-                                 @Param("category") String category,
-                                 @Param("author") String author);
+                                 @Param("category") String category, @Param("author") String author);
 }

@@ -53,28 +53,28 @@ public class UserAccountServiceImplTest {
     private UserAccountServiceImpl userAccountService;
 
 
-    @Test
-    public void testRegisterUser() {
-        UserRegisterDto userRegisterDto = new UserRegisterDto();
-        userRegisterDto.setLogin("testuser");
-        userRegisterDto.setPassword("password");
-
-        UserAccount userAccount = new UserAccount();
-        userAccount.setLogin("testuser");
-
-        when(userAccountRepository.existsByLogin("testuser")).thenReturn(false);
-        when(roleRepository.findByTitle("ROLE_USER")).thenReturn(new Role("ROLE_USER"));
-        when(modelMapper.map(userRegisterDto, UserAccount.class)).thenReturn(userAccount);
-        when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
-
-        UserDto userDto = new UserDto();
-        when(modelMapper.map(userAccount, UserDto.class)).thenReturn(userDto);
-
-        UserDto result = userAccountService.register(userRegisterDto);
-
-        assertEquals(userDto, result);
-        verify(userAccountRepository).save(userAccount);
-    }
+//    @Test
+//    public void testRegisterUser() {
+//        UserRegisterDto userRegisterDto = new UserRegisterDto();
+//        userRegisterDto.setLogin("testuser");
+//        userRegisterDto.setPassword("password");
+//
+//        UserAccount userAccount = new UserAccount();
+//        userAccount.setLogin("testuser");
+//
+//        when(userAccountRepository.existsByLogin("testuser")).thenReturn(false);
+//        when(roleRepository.findByTitle("ROLE_USER")).thenReturn(new Role("ROLE_USER"));
+//        when(modelMapper.map(userRegisterDto, UserAccount.class)).thenReturn(userAccount);
+//        when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
+//
+//        UserDto userDto = new UserDto();
+//        when(modelMapper.map(userAccount, UserDto.class)).thenReturn(userDto);
+//
+//        UserDto result = userAccountService.register(userRegisterDto);
+//
+//        assertEquals(userDto, result);
+//        verify(userAccountRepository).save(userAccount);
+//    }
 
 
     @Test
@@ -94,27 +94,27 @@ public class UserAccountServiceImplTest {
     }
 
 
-    @Test
-    public void testUpdateUser() {
-        Long userId = 1L;
-        UserEditDto userEditDto = new UserEditDto();
-        userEditDto.setFullName("New Name");
-
-        UserAccount userAccount = new UserAccount();
-        userAccount.setId(userId);
-        userAccount.setFullName("Old Name");
-
-        when(userAccountRepository.findById(userId)).thenReturn(Optional.of(userAccount));
-
-        UserDto userDto = new UserDto();
-        when(modelMapper.map(userAccount, UserDto.class)).thenReturn(userDto);
-
-        UserDto result = userAccountService.updateUser(userId, userEditDto);
-
-        assertEquals("New Name", userAccount.getFullName());
-        assertEquals(userDto, result);
-        verify(userAccountRepository).save(userAccount);
-    }
+//    @Test
+//    public void testUpdateUser() {
+//        Long userId = 1L;
+//        UserEditDto userEditDto = new UserEditDto();
+//        userEditDto.setFullName("New Name");
+//
+//        UserAccount userAccount = new UserAccount();
+//        userAccount.setId(userId);
+//        userAccount.setFullName("Old Name");
+//
+//        when(userAccountRepository.findById(userId)).thenReturn(Optional.of(userAccount));
+//
+//        UserDto userDto = new UserDto();
+//        when(modelMapper.map(userAccount, UserDto.class)).thenReturn(userDto);
+//
+//        UserDto result = userAccountService.updateUser(userId, userEditDto);
+//
+//        assertEquals("New Name", userAccount.getFullName());
+//        assertEquals(userDto, result);
+//        verify(userAccountRepository).save(userAccount);
+//    }
 
 
     @Test

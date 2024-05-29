@@ -16,6 +16,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Table(name = "users")
 public class UserAccount implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -47,10 +48,6 @@ public class UserAccount implements UserDetails {
         this.telegram = telegram;
     }
 
-//    public boolean changeRole() {
-//        this.role = (this.role == Role.USER) ? Role.ADMINISTRATOR : Role.USER;
-//        return true;
-//    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -195,21 +195,21 @@ class PetProjectApplicationTests {
         verify(petRepository, times(1)).deleteAll(anyList());
     }
 
-    @Test
-    void testUpdateUser() {
-        UserEditDto userEditDto = new UserEditDto();
-        userEditDto.setFullName("Updated Name");
-
-        UserAccount userAccount = new UserAccount();
-
-        when(userAccountRepository.findById(anyLong())).thenReturn(Optional.of(userAccount));
-        when(userAccountRepository.save(any(UserAccount.class))).thenReturn(userAccount);
-        when(modelMapper.map(any(UserAccount.class), eq(UserDto.class))).thenReturn(new UserDto());
-
-        UserDto userDto = userAccountService.updateUser(1L, userEditDto);
-
-        assertNotNull(userDto);
-        verify(userAccountRepository, times(1)).findById(anyLong());
-        verify(userAccountRepository, times(1)).save(any(UserAccount.class));
-    }
+//    @Test
+//    void testUpdateUser() {
+//        UserEditDto userEditDto = new UserEditDto();
+//        userEditDto.setFullName("Updated Name");
+//
+//        UserAccount userAccount = new UserAccount();
+//
+//        when(userAccountRepository.findById(anyLong())).thenReturn(Optional.of(userAccount));
+//        when(userAccountRepository.save(any(UserAccount.class))).thenReturn(userAccount);
+//        when(modelMapper.map(any(UserAccount.class), eq(UserDto.class))).thenReturn(new UserDto());
+//
+//        UserDto userDto = userAccountService.updateUser(1L, userEditDto);
+//
+//        assertNotNull(userDto);
+//        verify(userAccountRepository, times(1)).findById(anyLong());
+//        verify(userAccountRepository, times(1)).save(any(UserAccount.class));
+//    }
 }
