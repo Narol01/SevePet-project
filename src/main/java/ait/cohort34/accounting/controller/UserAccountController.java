@@ -5,6 +5,8 @@ import ait.cohort34.accounting.service.UserAccountService;
 import ait.cohort34.security.service.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,10 +24,13 @@ public class UserAccountController {
 
     final UserAccountService userAccountService;
     final AuthService authService;
-    private final ObjectMapper objectMapper;
+    final ObjectMapper objectMapper;
+    private static final Logger logger = LoggerFactory.getLogger(UserAccountController.class);
 
     @PostMapping
-    public ResponseEntity<UserDto> register(@RequestPart("registerDto") String registerDto,@RequestPart("image") MultipartFile image) throws IOException {
+    public ResponseEntity<UserDto> register(
+            @RequestPart("registerDto") String registerDto,
+            @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
         UserRegisterDto userRegisterDto = objectMapper.readValue(registerDto, UserRegisterDto.class);
         UserDto userDto =userAccountService.register(userRegisterDto, image);
         return new ResponseEntity<>(userDto, HttpStatus.CREATED);
@@ -64,7 +69,7 @@ public class UserAccountController {
     public ResponseEntity<UserDto> updateUser(
             @PathVariable Long id,
             @RequestPart("editDto") String userEditDto,
-            @RequestPart("image") MultipartFile image) throws IOException {
+            @RequestPart(value = "image",required = false) MultipartFile image) throws IOException {
 
         UserEditDto userEditDtoDto = objectMapper.readValue(userEditDto, UserEditDto.class);
         UserDto updatedUser = userAccountService.updateUser(id, userEditDtoDto, image);
