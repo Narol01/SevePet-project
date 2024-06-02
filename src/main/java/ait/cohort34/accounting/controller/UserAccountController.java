@@ -56,8 +56,8 @@ public class UserAccountController {
     }
 
     @GetMapping("/{author}")
-    public UserDto getUser(@PathVariable String author) {
-        return userAccountService.getUser(author);
+    public UserContactsDto getUserContacts(@PathVariable String author) {
+        return userAccountService.getUserContacts(author);
     }
 
     @DeleteMapping("/user/{id}")

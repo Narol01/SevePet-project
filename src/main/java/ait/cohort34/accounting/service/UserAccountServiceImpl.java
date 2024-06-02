@@ -9,7 +9,7 @@ import ait.cohort34.accounting.dto.exceptions.UserNotFoundException;
 import ait.cohort34.accounting.model.Role;
 import ait.cohort34.accounting.model.UserAccount;
 import ait.cohort34.petPosts.dao.PetRepository;
-import ait.cohort34.petPosts.dto.exseption.PhotoNotFoundException;
+import ait.cohort34.petPosts.dto.exception.PhotoNotFoundException;
 import ait.cohort34.petPosts.model.Pet;
 import ait.cohort34.accounting.model.PhotoUser;
 import jakarta.persistence.EntityManager;
@@ -87,12 +87,18 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
     public List<UserDto> getUsers() {
         Iterable<UserAccount> userAccounts = userAccountRepository.findAll();
         List<UserDto> users = new ArrayList<>();
-        userAccounts.forEach(userAccount -> users.add(modelMapper.map(userAccount, UserDto.class)));
+
         userAccounts.forEach(userAccount -> {
-            users.forEach(userDto -> { if (userAccount.getAvatar() != null) {
-                String photoUrl = "/api/account/photos/" + userAccount.getAvatar().getId();
-                userDto.setPhotoUrls(photoUrl);
-            }});});
+            if (!"admin".equals(userAccount.getLogin())) {
+                UserDto userDto = modelMapper.map(userAccount, UserDto.class);
+                if (userAccount.getAvatar() != null) {
+                    String photoUrl = "/api/account/photos/" + userAccount.getAvatar().getId();
+                    userDto.setPhotoUrls(photoUrl);
+                }
+                users.add(userDto);
+            }
+        });
+
         return users;
     }
 
@@ -106,6 +112,13 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
         }
         return userDto;
     }
+
+    @Override
+    public UserContactsDto getUserContacts(String author) {
+        UserAccount userAccount = userAccountRepository.findByLogin(author).orElseThrow(UserNotFoundException::new);
+        return modelMapper.map(userAccount, UserContactsDto.class);
+    }
+
     @Override
     public byte[] getPhotoById(Long id) {
         PhotoUser photoUser = photoRepository.findById(id).orElseThrow(PhotoNotFoundException::new);

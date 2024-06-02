@@ -1,15 +1,13 @@
 package ait.cohort34.petPosts.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Photo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,5 +31,9 @@ public class Photo {
 
     public Photo(byte[] data) {
         this.data = data;
+    }
+
+
+    public Photo(long l, String name, String type, byte[] data) {
     }
 }

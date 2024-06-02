@@ -36,7 +36,7 @@ public class Pet {
     LocalDate dateCreate  = LocalDate.now();
     LocalDate deadline = LocalDate.now().plusMonths(3);
 
-    public Pet(String caption, String type, String description, String city, String country, Set<Photo> photos, String age, String gender, String category) {
+    public Pet(String caption, String type, String description, String city, String country, String age) {
         this.caption = caption;
         this.petType = type;
         this.description = description;

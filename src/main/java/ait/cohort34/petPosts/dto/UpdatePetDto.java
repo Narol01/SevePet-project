@@ -2,7 +2,6 @@ package ait.cohort34.petPosts.dto;
 
 import lombok.*;
 
-import java.util.Set;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

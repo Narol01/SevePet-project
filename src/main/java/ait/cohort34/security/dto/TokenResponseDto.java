@@ -1,10 +1,12 @@
 package ait.cohort34.security.dto;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Objects;
 
 @Getter
+@Setter
 public class TokenResponseDto {
 
     private String accessToken;

@@ -1,6 +1,5 @@
 package ait.cohort34.petPosts.dto;
 
-import ait.cohort34.petPosts.model.Photo;
 import lombok.*;
 
 import java.time.LocalDate;
