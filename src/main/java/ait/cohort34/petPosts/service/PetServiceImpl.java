@@ -44,6 +44,8 @@ public class PetServiceImpl implements PetService {
             photo.setData(file.getBytes());
             photoSet.add(photo);
         }
+
+
         Pet pet = new Pet();
         pet.setCaption(newPetDto.getCaption());
         pet.setPetType(newPetDto.getPetType());

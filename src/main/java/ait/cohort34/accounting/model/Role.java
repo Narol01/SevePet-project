@@ -3,6 +3,7 @@ package ait.cohort34.accounting.model;
 
 import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Objects;
@@ -10,6 +11,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "role")
 @NoArgsConstructor
+@Setter
 public class Role implements GrantedAuthority {
 
     @Id

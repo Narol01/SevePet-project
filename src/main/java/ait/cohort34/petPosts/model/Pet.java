@@ -29,14 +29,14 @@ public class Pet {
     String gender;
     String age;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "pet")
-    private Set<Photo> photos = new HashSet<>();
+    Set<Photo> photos = new HashSet<>();
     String country;
     String city;
     String description;
     LocalDate dateCreate  = LocalDate.now();
     LocalDate deadline = LocalDate.now().plusMonths(3);
 
-    public Pet(String caption, String type, String description, String city, String country, String age) {
+    public Pet(String caption, String type, String description, String city, String country, Set<Photo> photos, String age, String gender, String category) {
         this.caption = caption;
         this.petType = type;
         this.description = description;

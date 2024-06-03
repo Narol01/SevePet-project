@@ -51,13 +51,12 @@ public class SecurityConfig {
 
 
                         .requestMatchers(HttpMethod.PUT,"/api/account/password","/api/pet/{id}","/api/account/user/{id}").hasRole("USER")
-                        .requestMatchers(HttpMethod.GET,"/api/account/users","/api/account/user/{id}","/api/account/{author}").hasAnyRole("ADMIN","USER")
+                        .requestMatchers(HttpMethod.GET,"/api/account/users").hasAnyRole("ADMIN","USER")
                         //.access(new WebExpressionAuthorizationManager("#login == authentication.name or hasRole('ADMIN')"))
 
                         .requestMatchers(HttpMethod.PUT,"/api/account/user/{id}/role").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE,"/api/account/user/{id}").hasAnyRole("ADMIN", "USER")
                         //.access(new WebExpressionAuthorizationManager(("#login == authentication.name or hasRole('ADMIN')")))
-                        .requestMatchers(HttpMethod.GET,"/api/pet/{id}").hasAnyRole("USER","ADMIN")
 
                         .requestMatchers(HttpMethod.DELETE,"/api/pet/{id}")
                         .access((authentication, context) -> {
