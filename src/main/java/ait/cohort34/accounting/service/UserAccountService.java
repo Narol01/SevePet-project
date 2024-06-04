@@ -13,6 +13,8 @@ public interface UserAccountService {
 
     UserDto getUser(String login);
 
+    UserContactsDto getUserContacts(String author);
+
     UserDto removeUser(Long id);
 
     UserDto updateUser(Long id, UserEditDto userEditDto,MultipartFile image) throws IOException;

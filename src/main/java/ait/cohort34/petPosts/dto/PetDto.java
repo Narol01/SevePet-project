@@ -1,6 +1,5 @@
 package ait.cohort34.petPosts.dto;
 
-import ait.cohort34.petPosts.model.Photo;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -12,6 +11,7 @@ import java.util.Set;
 @Setter
 public class PetDto {
     Long  id;
+    String author;
     String caption;
     String petType;
     String category;

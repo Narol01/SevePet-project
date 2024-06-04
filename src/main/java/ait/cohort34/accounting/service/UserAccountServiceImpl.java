@@ -9,7 +9,7 @@ import ait.cohort34.accounting.dto.exceptions.UserNotFoundException;
 import ait.cohort34.accounting.model.Role;
 import ait.cohort34.accounting.model.UserAccount;
 import ait.cohort34.petPosts.dao.PetRepository;
-import ait.cohort34.petPosts.dto.exseption.PhotoNotFoundException;
+import ait.cohort34.petPosts.dto.exception.PhotoNotFoundException;
 import ait.cohort34.petPosts.model.Pet;
 import ait.cohort34.accounting.model.PhotoUser;
 import jakarta.persistence.EntityManager;
@@ -32,11 +32,11 @@ import java.util.*;
 public class UserAccountServiceImpl implements UserAccountService, CommandLineRunner {
 
     final UserAccountRepository userAccountRepository;
+    final PetRepository petRepository;
     final ModelMapper modelMapper;
     final PasswordEncoder passwordEncoder;
     @Autowired
     private EntityManager entityManager;
-    final PetRepository petRepository;
     final RoleRepository roleRepository;
     final UserPhotoRepository photoRepository;
 
@@ -76,7 +76,7 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
 
         UserDto userDto = modelMapper.map(userAccount, UserDto.class);
         if (userAccount.getAvatar() != null) {
-            String photoUrl = "/api/pets/photos/" + userAccount.getAvatar().getId();
+            String photoUrl = "/api/account/photos/" + userAccount.getAvatar().getId();
             userDto.setPhotoUrls(photoUrl);
         }
 
@@ -87,12 +87,18 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
     public List<UserDto> getUsers() {
         Iterable<UserAccount> userAccounts = userAccountRepository.findAll();
         List<UserDto> users = new ArrayList<>();
-        userAccounts.forEach(userAccount -> users.add(modelMapper.map(userAccount, UserDto.class)));
+
         userAccounts.forEach(userAccount -> {
-            users.forEach(userDto -> { if (userAccount.getAvatar() != null) {
-                String photoUrl = "/api/pets/photos/" + userAccount.getAvatar().getId();
-                userDto.setPhotoUrls(photoUrl);
-            }});});
+            if (!"admin".equals(userAccount.getLogin())) {
+                UserDto userDto = modelMapper.map(userAccount, UserDto.class);
+                if (userAccount.getAvatar() != null) {
+                    String photoUrl = "/api/account/photos/" + userAccount.getAvatar().getId();
+                    userDto.setPhotoUrls(photoUrl);
+                }
+                users.add(userDto);
+            }
+        });
+
         return users;
     }
 
@@ -101,11 +107,18 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
         UserAccount userAccount = userAccountRepository.findByLogin(login).orElseThrow(UserNotFoundException::new);
         UserDto userDto = modelMapper.map(userAccount, UserDto.class);
         if (userAccount.getAvatar() != null) {
-            String photoUrl = "/api/pets/photos/" + userAccount.getAvatar().getId();
+            String photoUrl = "/api/account/photos/" + userAccount.getAvatar().getId();
             userDto.setPhotoUrls(photoUrl);
         }
         return userDto;
     }
+
+    @Override
+    public UserContactsDto getUserContacts(String author) {
+        UserAccount userAccount = userAccountRepository.findByLogin(author).orElseThrow(UserNotFoundException::new);
+        return modelMapper.map(userAccount, UserContactsDto.class);
+    }
+
     @Override
     public byte[] getPhotoById(Long id) {
         PhotoUser photoUser = photoRepository.findById(id).orElseThrow(PhotoNotFoundException::new);
@@ -117,7 +130,9 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
     public UserDto removeUser(Long id) {
         UserAccount userAccount = userAccountRepository.findById(id).orElseThrow(UserNotFoundException::new);
         userAccountRepository.delete(userAccount);
+
         List<Pet> petList = petRepository.findByAuthorIgnoreCase(userAccount.getUsername()).toList();
+
         petRepository.deleteAll(petList);
         return modelMapper.map(userAccount, UserDto.class);
     }
@@ -140,6 +155,7 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
         if (userEditDto.getWebsite() != null) {
             userAccount.setWebsite(userEditDto.getWebsite());
         }
+
         if (image != null && !image.isEmpty()) {
                 byte[] newPhotoData = image.getBytes();
                 if (userAccount.getAvatar() != null) {
@@ -150,11 +166,12 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
                     newPhoto.setUserAccount(userAccount);
                     userAccount.setAvatar(newPhoto);
                 }
+
         }
         userAccountRepository.save(userAccount);
         UserDto userDto = modelMapper.map(userAccount, UserDto.class);
         if (userAccount.getAvatar() != null) {
-            String photoUrl = "/api/pets/photos/" + userAccount.getAvatar().getId();
+            String photoUrl = "/api/account/photos/" + userAccount.getAvatar().getId();
             userDto.setPhotoUrls(photoUrl);
         }
         return userDto;
@@ -190,6 +207,7 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
         //сохраним обновленного пользователя
         userAccountRepository.save(user);
     }
+
 
     @Override
     public String getTelegram(Long id) {

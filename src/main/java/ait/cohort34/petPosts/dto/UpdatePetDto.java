@@ -2,7 +2,6 @@ package ait.cohort34.petPosts.dto;
 
 import lombok.*;
 
-import java.util.Set;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,7 +11,7 @@ public class UpdatePetDto {
     String category;
     String gender;
     String age;
-    Set<String> photos;
+    //Set<String> photos;
     String country;
     String city;
     String description;

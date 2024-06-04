@@ -29,7 +29,7 @@ public class Pet {
     String gender;
     String age;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "pet")
-    private Set<Photo> photos = new HashSet<>();
+    Set<Photo> photos = new HashSet<>();
     String country;
     String city;
     String description;
