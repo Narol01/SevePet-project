@@ -96,12 +96,21 @@ public class PetServiceImpl implements PetService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public Iterable<PetDto> findPetsByFilter(String petType, String age, String gender, String country, String category, String author) {
         return petRepository.findPetsByFilter(petType, age, gender, country, category, author)
-                .map(pet -> modelMapper.map(pet, PetDto.class))
-                .toList();
+                .map(pet -> {
+                    PetDto petDto = modelMapper.map(pet, PetDto.class);
+                    if (pet.getPhotos() != null) {
+                        Set<String> photoUrls = pet.getPhotos().stream()
+                                .map(photo -> "/api/pet/photos/" + photo.getId())
+                                .collect(Collectors.toSet());
+                        petDto.setPhotoUrls(photoUrls);
+                    }
+                    return petDto;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
