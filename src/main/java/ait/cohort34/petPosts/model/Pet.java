@@ -32,6 +32,7 @@ public class Pet {
     Set<Photo> photos = new HashSet<>();
     String country;
     String city;
+    @Column(columnDefinition = "TEXT")
     String description;
     LocalDate dateCreate  = LocalDate.now();
     LocalDate deadline = LocalDate.now().plusMonths(3);
