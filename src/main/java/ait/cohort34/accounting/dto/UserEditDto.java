@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 public class UserEditDto {
     @NotEmpty(message = "FullName must not be empty")
-    @Pattern(regexp = "^[A-Za-z]+$", message = "The full name must contain only letters of the Latin alphabet")
+    @Pattern(regexp = "^(?!\\s+$)[A-Za-z\\s]+$", message = "The full name must contain only letters of the Latin alphabet")
     private String fullName;
     private String telegram;
     @Email(message = "Email should be valid")

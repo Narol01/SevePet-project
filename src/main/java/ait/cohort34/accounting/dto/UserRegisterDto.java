@@ -11,9 +11,11 @@ import lombok.Setter;
 @Setter
 public class UserRegisterDto {
     @NotEmpty(message = "FullName must not be empty")
-    @Pattern(regexp = "^[A-Za-z]+$", message = "The full name must contain only letters of the Latin alphabet")
+    @Pattern(regexp = "^(?!\\s+$)[A-Za-z\\s]+$", message = "The full name must contain only letters of the Latin alphabet")
     private String fullName;
     @NotEmpty(message = "Login must not be empty")
+    @Pattern(regexp = "^(?!\\s)[A-Za-z0-9!@#$%^&*()_+=:,.?-]*[A-Za-z0-9!@#$%^&*()_+=:,.?-]+$",
+       message = "Login can contain only Latin letters, numbers, and special characters: ! @ # $ % ^ & * ( ) _ + = : , . ? - (no spaces)")
     private String login;
     @NotEmpty(message = "Password must not be empty")
     @Size(min = 4, max = 8, message = "Password must be at least 4-8 characters long")
